@@ -12,6 +12,45 @@
   animation: shake 0.4s ease-in-out;
 }
 
+@keyframes node-enter {
+  0% { opacity: 0; transform: scale(0.5); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@utility animate-node-enter {
+  animation: node-enter 0.3s ease-out;
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@utility animate-fade-in {
+  animation: fade-in 0.4s ease-out;
+}
+
+@keyframes glow {
+  0%, 100% { text-shadow: 0 0 8px rgba(220, 38, 38, 0.4), 0 0 20px rgba(220, 38, 38, 0.15); }
+  50% { text-shadow: 0 0 16px rgba(220, 38, 38, 0.7), 0 0 40px rgba(220, 38, 38, 0.3); }
+}
+
+@utility animate-glow {
+  animation: glow 3s ease-in-out infinite;
+}
+
+@keyframes drift {
+  0% { transform: scale(1.05) translate(0, 0); }
+  25% { transform: scale(1.08) translate(2%, -1%); }
+  50% { transform: scale(1.05) translate(-1%, 1%); }
+  75% { transform: scale(1.1) translate(-2%, -2%); }
+  100% { transform: scale(1.05) translate(0, 0); }
+}
+
+@utility animate-drift {
+  animation: drift 30s ease-in-out infinite;
+}
+
 html, body, #root {
   margin: 0;
   padding: 0;

@@ -137,7 +137,7 @@ export default function Game({ onEnd }: Props) {
       <TimerBar timeLeft={timeLeft} />
       <StreakBar streakTimeLeft={streakTimeLeft} multiplier={multiplier} streak={streakRef.current} />
       <div className="absolute top-3 right-4 z-50">
-        <span className="text-white font-mono font-bold text-lg">
+        <span className="text-white font-bold text-lg">
           {score}
           {streakTimeLeft > 0 && (
             <span className="text-cyan-400 text-sm ml-1">

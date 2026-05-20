@@ -38,20 +38,22 @@ export default function App() {
         setPhase("playing");
     }
 
-    if (phase === "start") return <StartScreen onStart={handleStart} />;
+    if (phase === "start") return <div className="animate-fade-in w-full h-full"><StartScreen onStart={handleStart} /></div>;
 
-    if (phase === "playing") return <Game key={gameKey} onEnd={handleEnd} />;
+    if (phase === "playing") return <div className="animate-fade-in w-full h-full"><Game key={gameKey} onEnd={handleEnd} /></div>;
 
     if (!result) return null;
 
     return (
-        <ScoreScreen
-            nodes={result.nodes}
-            edges={result.edges}
-            longestStreak={result.longestStreak}
-            timeSurvived={result.timeSurvived}
-            score={result.score}
-            onRestart={handleRestart}
-        />
+        <div className="animate-fade-in w-full h-full">
+            <ScoreScreen
+                nodes={result.nodes}
+                edges={result.edges}
+                longestStreak={result.longestStreak}
+                timeSurvived={result.timeSurvived}
+                score={result.score}
+                onRestart={handleRestart}
+            />
+        </div>
     );
 }

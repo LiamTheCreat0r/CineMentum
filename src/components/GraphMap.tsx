@@ -25,9 +25,36 @@ export default function GraphMap({ nodes, edges, frozen }: Props) {
     const svg = d3.select(svgEl)
     svg.selectAll('*').remove()
 
+    const defs = svg.append('defs')
+
+    defs.append('pattern')
+      .attr('id', 'dotgrid')
+      .attr('width', 24)
+      .attr('height', 24)
+      .attr('patternUnits', 'userSpaceOnUse')
+      .append('circle')
+      .attr('cx', 2)
+      .attr('cy', 2)
+      .attr('r', 1)
+      .attr('fill', '#222')
+
+    defs.append('filter')
+      .attr('id', 'glow')
+      .append('feDropShadow')
+      .attr('dx', 0)
+      .attr('dy', 0)
+      .attr('stdDeviation', 4)
+      .attr('flood-color', '#dc2626')
+      .attr('flood-opacity', 0.4)
+
+    svg.append('rect')
+      .attr('width', '100%')
+      .attr('height', '100%')
+      .attr('fill', 'url(#dotgrid)')
+
     const g = svg.append('g')
 
-    const zoom = d3.zoom<SVGSVGElement, unknown>().scaleExtent([0.1, 4]).on('zoom', (event) => {
+    const zoom = d3.zoom<SVGSVGElement, unknown>().scaleExtent([0.2, 6]).on('zoom', (event) => {
       g.attr('transform', event.transform)
     })
     if (!frozen) {
@@ -50,7 +77,7 @@ export default function GraphMap({ nodes, edges, frozen }: Props) {
 
     if (!frozen) {
       const first = nodes[0]
-      const t = d3.zoomIdentity.translate(width / 2, height / 2).scale(1.4).translate(-first.x!, -first.y!)
+      const t = d3.zoomIdentity.translate(width / 2, height / 2).scale(2).translate(-first.x!, -first.y!)
       svg.call(zoom.transform, t)
     }
 
@@ -91,7 +118,9 @@ export default function GraphMap({ nodes, edges, frozen }: Props) {
 
       const nodeSel = nodeGroup.selectAll<SVGGElement, any>('g')
         .data(nodes)
-        .join('g')
+        .join(
+          enter => enter.append('g').attr('class', 'animate-node-enter'),
+        )
         .attr('transform', (d: any) => `translate(${d.x}, ${d.y})`)
 
       nodeSel.selectAll<SVGImageElement, any>('image')
@@ -147,7 +176,7 @@ export default function GraphMap({ nodes, edges, frozen }: Props) {
         zoomed = true
         const last = nodes[nodes.length - 1]
         if (last.x != null && last.y != null && !frozen) {
-          const t = d3.zoomIdentity.translate(width / 2, height / 2).scale(1.4).translate(-last.x, -last.y)
+          const t = d3.zoomIdentity.translate(width / 2, height / 2).scale(2).translate(-last.x, -last.y)
           svg.transition().duration(400).call(zoom.transform as any, t)
         }
       }

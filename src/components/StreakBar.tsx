@@ -38,7 +38,7 @@ export default function StreakBar({ streakTimeLeft, multiplier, streak }: Props)
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className={`text-xs font-mono font-bold mt-0.5 ${textColors[idx]}`}>
+      <span className={`text-xs font-bold mt-0.5 ${textColors[idx]}`}>
         {multiplier.toFixed(2)}x · {streakTimeLeft}s
       </span>
     </div>

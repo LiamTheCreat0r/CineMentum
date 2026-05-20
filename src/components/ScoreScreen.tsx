@@ -14,8 +14,10 @@ interface Props {
 export default function ScoreScreen({ nodes, edges, longestStreak, timeSurvived, score, onRestart }: Props) {
   return (
     <div className="relative w-full h-full bg-neutral-950 flex flex-col">
-      <div className="flex-1 relative">
-        <GraphMap nodes={nodes} edges={edges} frozen />
+      <div className="flex-1 relative overflow-hidden">
+        <div className="w-full h-full animate-drift">
+          <GraphMap nodes={nodes} edges={edges} frozen />
+        </div>
       </div>
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 pointer-events-none">
         <div className="pointer-events-auto">

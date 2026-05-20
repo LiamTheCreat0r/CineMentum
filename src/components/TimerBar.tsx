@@ -23,7 +23,7 @@ export default function TimerBar({ timeLeft }: Props) {
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className={`text-sm font-mono font-bold mt-0.5 ${textColor}`}>
+      <span className={`text-sm font-bold mt-0.5 ${textColor}`}>
         {timeLeft}s
       </span>
     </div>
