@@ -79,6 +79,7 @@ export default function InputBar({ onGuess }: Props) {
         onChange={e => { setQuery(e.target.value); setSelectedIndex(-1) }}
         placeholder="Search for a film or actor…"
         disabled={pending}
+        spellCheck={false}
         className={`w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-lg text-white placeholder-neutral-500 outline-none focus:border-red-500/60 focus:shadow-[0_0_12px_-4px_#dc2626] transition-all ${
           shaking ? 'animate-shake border-red-500' : ''
         }`}
