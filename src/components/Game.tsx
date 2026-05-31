@@ -96,6 +96,7 @@ export default function Game({ settings, onEnd }: Props) {
   const filmNodes = nodes.filter(n => n.type === 'film')
   const actorNodes = nodes.filter(n => n.type === 'actor')
   const tvNodes = nodes.filter(n => n.type === 'tv')
+  const guessedIds = new Set(nodes.map(n => n.tmdbId))
 
   async function handleGuess(result: TMDBMultiResult): Promise<boolean> {
     const typeMap: Record<string, NodeType> = { movie: 'film', person: 'actor', tv: 'tv' }
@@ -167,7 +168,7 @@ export default function Game({ settings, onEnd }: Props) {
       </div>
       <div className="flex justify-center pb-6 pt-2 items-center gap-2">
         <div className="flex-1 max-w-lg">
-          <InputBar onGuess={handleGuess} includeMovies={includeMovies} includeTv={includeTv} />
+          <InputBar onGuess={handleGuess} includeMovies={includeMovies} includeTv={includeTv} guessedIds={guessedIds} />
         </div>
         <button
           onClick={() => onEnd(nodes, edges, longestStreak, Math.round((Date.now() - startTimeRef.current) / 1000), score)}

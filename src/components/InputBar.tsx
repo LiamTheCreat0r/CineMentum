@@ -7,10 +7,12 @@ interface Props {
   onGuess: (result: TMDBMultiResult) => Promise<boolean>
   includeMovies: boolean
   includeTv: boolean
+  guessedIds: Set<number>
 }
 
-export default function InputBar({ onGuess, includeMovies, includeTv }: Props) {
+export default function InputBar({ onGuess, includeMovies, includeTv, guessedIds }: Props) {
   const { query, setQuery, results, loading } = useSearch(includeMovies, includeTv)
+  const filtered = results.filter(r => !guessedIds.has(r.id))
   const [shaking, setShaking] = useState(false)
   const [pending, setPending] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
@@ -20,7 +22,7 @@ export default function InputBar({ onGuess, includeMovies, includeTv }: Props) {
   const pendingRef = useRef(pending)
   const onGuessRef = useRef(onGuess)
 
-  resultsRef.current = results
+  resultsRef.current = filtered
   selectedRef.current = selectedIndex
   pendingRef.current = pending
   onGuessRef.current = onGuess
@@ -87,7 +89,7 @@ export default function InputBar({ onGuess, includeMovies, includeTv }: Props) {
         }`}
       />
       <AutocompleteDropdown
-        results={results}
+        results={filtered}
         loading={loading}
         selectedIndex={selectedIndex}
         onSelect={handleSelect}
