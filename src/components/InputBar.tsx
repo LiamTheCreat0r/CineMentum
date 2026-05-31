@@ -5,10 +5,12 @@ import type { TMDBMultiResult } from '../types'
 
 interface Props {
   onGuess: (result: TMDBMultiResult) => Promise<boolean>
+  includeMovies: boolean
+  includeTv: boolean
 }
 
-export default function InputBar({ onGuess }: Props) {
-  const { query, setQuery, results, loading } = useSearch()
+export default function InputBar({ onGuess, includeMovies, includeTv }: Props) {
+  const { query, setQuery, results, loading } = useSearch(includeMovies, includeTv)
   const [shaking, setShaking] = useState(false)
   const [pending, setPending] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
@@ -77,7 +79,7 @@ export default function InputBar({ onGuess }: Props) {
         type="text"
         value={query}
         onChange={e => { setQuery(e.target.value); setSelectedIndex(-1) }}
-        placeholder="Search for a film or actor…"
+        placeholder={`Search for ${includeMovies && includeTv ? 'a film, TV show' : includeTv ? 'a TV show' : 'a film'} or actor…`}
         disabled={pending}
         spellCheck={false}
         className={`w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-lg text-white placeholder-neutral-500 outline-none focus:border-red-500/60 focus:shadow-[0_0_12px_-4px_#dc2626] transition-all ${

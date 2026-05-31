@@ -1,4 +1,4 @@
-export type NodeType = 'film' | 'actor'
+export type NodeType = 'film' | 'actor' | 'tv'
 
 export interface GraphNode {
   id: string
@@ -32,7 +32,7 @@ export interface GameState {
 
 export interface TMDBMultiResult {
   id: number
-  media_type: 'movie' | 'person'
+  media_type: 'movie' | 'person' | 'tv'
   title?: string
   name?: string
   poster_path?: string | null
@@ -40,11 +40,41 @@ export interface TMDBMultiResult {
   popularity: number
 }
 
+export interface CreditTv {
+  id: number
+  name: string
+  poster_path: string | null
+  popularity: number
+}
+
+export interface CreditPerson {
+  id: number
+  name: string
+  profile_path: string | null
+  popularity: number
+}
+
+export interface CreditMovie {
+  id: number
+  title: string
+  poster_path: string | null
+  popularity: number
+}
+
 export interface TMDBMovieCredit {
   id: number
-  cast: { id: number }[]
+  cast: CreditPerson[]
 }
 
 export interface TMDBPersonCredit {
-  cast: { id: number; title?: string; name?: string }[]
+  cast: CreditMovie[]
+}
+
+export interface TMDBTvCredit {
+  id: number
+  cast: CreditPerson[]
+}
+
+export interface TMDBPersonTvCredit {
+  cast: CreditTv[]
 }

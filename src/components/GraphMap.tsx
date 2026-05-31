@@ -127,14 +127,27 @@ export default function GraphMap({ nodes, edges, frozen }: Props) {
         .data((d: any) => [d])
         .join('image')
         .attr('href', (d: any) => {
-          const path = d.type === 'film' ? d.posterPath : d.profilePath
+          const path = d.type === 'film' || d.type === 'tv' ? d.posterPath : d.profilePath
           return path ? `${TMDB_IMAGE_BASE}${path}` : ''
         })
-        .attr('width', (d: any) => d.type === 'film' ? 50 : 40)
-        .attr('height', (d: any) => d.type === 'film' ? 75 : 40)
-        .attr('x', (d: any) => d.type === 'film' ? -25 : -20)
-        .attr('y', (d: any) => d.type === 'film' ? -37 : -20)
-        .attr('clip-path', (d: any) => d.type === 'actor' ? 'circle(20px)' : '')
+        .attr('width', (d: any) => d.type === 'actor' ? 40 : 50)
+        .attr('height', (d: any) => d.type === 'actor' ? 40 : 75)
+        .attr('x', (d: any) => d.type === 'actor' ? -20 : -25)
+        .attr('y', (d: any) => d.type === 'actor' ? -20 : -37)
+        .attr('clip-path', (d: any) => d.type === 'actor' ? 'circle(20px)' : d.type === 'tv' ? 'inset(0 round 6px)' : '')
+
+      nodeSel.selectAll<SVGRectElement, any>('rect.tv-border')
+        .data((d: any) => d.type === 'tv' ? [d] : [])
+        .join('rect')
+        .attr('class', 'tv-border')
+        .attr('x', -26)
+        .attr('y', -38)
+        .attr('width', 52)
+        .attr('height', 77)
+        .attr('rx', 6)
+        .attr('fill', 'none')
+        .attr('stroke', '#a855f7')
+        .attr('stroke-width', 2)
 
       nodeSel.selectAll<SVGCircleElement, any>('circle.clip')
         .data((d: any) => d.type === 'actor' ? [d] : [])
@@ -151,7 +164,7 @@ export default function GraphMap({ nodes, edges, frozen }: Props) {
         .attr('fill', '#ccc')
         .attr('font-size', 11)
         .attr('text-anchor', 'middle')
-        .attr('y', (d: any) => (d.type === 'film' ? 50 : 30))
+        .attr('y', (d: any) => (d.type === 'actor' ? 30 : 50))
         .text((d: any) => d.label.length > 18 ? d.label.slice(0, 17) + '…' : d.label)
 
       if (!frozen) {

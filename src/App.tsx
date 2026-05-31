@@ -2,6 +2,7 @@ import { useState } from "react";
 import StartScreen from "./components/StartScreen";
 import Game from "./components/Game";
 import ScoreScreen from "./components/ScoreScreen";
+import type { Settings } from "./components/SettingsPanel";
 import type { GraphNode, GraphEdge, GamePhase } from "./types";
 
 interface GameResult {
@@ -12,10 +13,19 @@ interface GameResult {
     score: number;
 }
 
+const DEFAULT_SETTINGS: Settings = {
+    contentMode: 'movies',
+    streakEnabled: true,
+    baseTime: 45,
+    maxTimeEnabled: false,
+    maxTime: 120,
+}
+
 export default function App() {
     const [phase, setPhase] = useState<GamePhase>("start");
     const [gameKey, setGameKey] = useState(0);
     const [result, setResult] = useState<GameResult | null>(null);
+    const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
 
     function handleStart() {
         setPhase("playing");
@@ -38,9 +48,9 @@ export default function App() {
         setPhase("playing");
     }
 
-    if (phase === "start") return <div className="animate-fade-in w-full h-full"><StartScreen onStart={handleStart} /></div>;
+    if (phase === "start") return <div className="animate-fade-in w-full h-full"><StartScreen settings={settings} onSettingsChange={setSettings} onStart={handleStart} /></div>;
 
-    if (phase === "playing") return <div className="animate-fade-in w-full h-full"><Game key={gameKey} onEnd={handleEnd} /></div>;
+    if (phase === "playing") return <div className="animate-fade-in w-full h-full"><Game key={gameKey} settings={settings} onEnd={handleEnd} /></div>;
 
     if (!result) return null;
 

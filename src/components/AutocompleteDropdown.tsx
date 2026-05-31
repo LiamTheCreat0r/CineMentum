@@ -27,7 +27,7 @@ export default function AutocompleteDropdown({ results, loading, selectedIndex, 
         >
           <img
             src={
-              r.media_type === 'movie'
+              r.media_type === 'movie' || r.media_type === 'tv'
                 ? (r.poster_path ? `${TMDB_IMAGE_BASE}${r.poster_path}` : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 150"><rect fill="%23333" width="100" height="150"/><text fill="%23666" x="50" y="75" text-anchor="middle" font-size="12">No Poster</text></svg>')
                 : (r.profile_path ? `${TMDB_IMAGE_BASE}${r.profile_path}` : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 150"><rect fill="%23333" width="100" height="150"/><text fill="%23666" x="50" y="75" text-anchor="middle" font-size="12">No Photo</text></svg>')
             }
@@ -42,9 +42,11 @@ export default function AutocompleteDropdown({ results, loading, selectedIndex, 
           <span className={`text-xs font-medium px-2 py-0.5 rounded ${
             r.media_type === 'movie'
               ? 'bg-blue-600 text-blue-100'
+              : r.media_type === 'tv'
+              ? 'bg-purple-600 text-purple-100'
               : 'bg-green-600 text-green-100'
           }`}>
-            {r.media_type === 'movie' ? 'Film' : 'Actor'}
+            {r.media_type === 'movie' ? 'Film' : r.media_type === 'tv' ? 'TV' : 'Actor'}
           </span>
         </li>
       ))}

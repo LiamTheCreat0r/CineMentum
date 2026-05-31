@@ -1,6 +1,13 @@
 import SettingsPanel from './SettingsPanel'
+import type { Settings } from './SettingsPanel'
 
-export default function StartScreen({ onStart }: { onStart: () => void }) {
+interface Props {
+  settings: Settings
+  onSettingsChange: (settings: Settings) => void
+  onStart: () => void
+}
+
+export default function StartScreen({ settings, onSettingsChange, onStart }: Props) {
   return (
     <div className="flex flex-col items-center justify-center h-full text-white gap-6 bg-[radial-gradient(ellipse_at_center,_#1a0505_0%,_#0a0a0a_60%,_#000_100%)]">
       <h1 className="text-5xl font-bold tracking-tight">CINE<span className="text-red-600 animate-glow">ATLAS</span></h1>
@@ -15,7 +22,7 @@ export default function StartScreen({ onStart }: { onStart: () => void }) {
       >
         Start
       </button>
-      <SettingsPanel />
+      <SettingsPanel settings={settings} onChange={onSettingsChange} />
     </div>
   )
 }

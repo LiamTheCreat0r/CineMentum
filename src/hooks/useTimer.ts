@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { INITIAL_TIME, BONUS_ACTOR, BONUS_FILM } from '../constants'
+import { INITIAL_TIME, BONUS_ACTOR, BONUS_FILM, BONUS_TV } from '../constants'
 
 export function useTimer() {
   const [timeLeft, setTimeLeft] = useState(INITIAL_TIME)
@@ -26,8 +26,8 @@ export function useTimer() {
     clearInterval(intervalRef.current)
   }, [])
 
-  const addTime = useCallback((nodeType: 'film' | 'actor') => {
-    const bonus = nodeType === 'actor' ? BONUS_ACTOR : BONUS_FILM
+  const addTime = useCallback((nodeType: 'film' | 'actor' | 'tv') => {
+    const bonus = nodeType === 'actor' ? BONUS_ACTOR : nodeType === 'tv' ? BONUS_TV : BONUS_FILM
     setTimeLeft(prev => prev + bonus)
   }, [])
 

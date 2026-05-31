@@ -6,15 +6,17 @@ import InputBar from './InputBar'
 import { useTimer } from '../hooks/useTimer'
 import { fetchRandomStarter } from '../hooks/useTMDB'
 import { validateGuess, preloadNodeCredits } from '../utils/validation'
-import type { GraphNode, GraphEdge, TMDBMultiResult } from '../types'
+import type { Settings } from './SettingsPanel'
+import type { GraphNode, GraphEdge, TMDBMultiResult, NodeType } from '../types'
 
 const GUESS_POINTS = 20
 
 interface Props {
+  settings: Settings
   onEnd: (nodes: GraphNode[], edges: GraphEdge[], longestStreak: number, timeSurvived: number, score: number) => void
 }
 
-export default function Game({ onEnd }: Props) {
+export default function Game({ settings, onEnd }: Props) {
   const [nodes, setNodes] = useState<GraphNode[]>([])
   const [edges, setEdges] = useState<GraphEdge[]>([])
   const [longestStreak, setLongestStreak] = useState(0)
@@ -29,14 +31,19 @@ export default function Game({ onEnd }: Props) {
   const startTimeRef = useRef(0)
   const streakTimerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
 
+  const includeMovies = settings.contentMode !== 'tv'
+  const includeTv = settings.contentMode !== 'movies'
+
   useEffect(() => {
-    fetchRandomStarter().then(movie => {
+    const pickTv = settings.contentMode === 'tv' || (settings.contentMode === 'both' && Math.random() > 0.5)
+    fetchRandomStarter(pickTv).then(item => {
+      const type = pickTv ? 'tv' : 'film'
       const starter: GraphNode = {
-        id: `film-${movie.id}`,
-        type: 'film',
-        label: movie.title,
-        tmdbId: movie.id,
-        posterPath: movie.poster_path,
+        id: `${type}-${item.id}`,
+        type,
+        label: item.title,
+        tmdbId: item.id,
+        posterPath: item.poster_path,
         profilePath: null,
       }
       setNodes([starter])
@@ -44,7 +51,7 @@ export default function Game({ onEnd }: Props) {
       startTimeRef.current = Date.now()
       setReady(true)
     })
-  }, [])
+  }, [settings.contentMode])
 
   useEffect(() => {
     if (ready && !timerStarted.current) {
@@ -89,21 +96,24 @@ export default function Game({ onEnd }: Props) {
 
   const filmNodes = nodes.filter(n => n.type === 'film')
   const actorNodes = nodes.filter(n => n.type === 'actor')
+  const tvNodes = nodes.filter(n => n.type === 'tv')
 
   async function handleGuess(result: TMDBMultiResult): Promise<boolean> {
+    const typeMap: Record<string, NodeType> = { movie: 'film', person: 'actor', tv: 'tv' }
+    const nodeType = typeMap[result.media_type] || 'film'
     const candidate: GraphNode = {
       id: `${result.media_type}-${result.id}`,
-      type: result.media_type === 'movie' ? 'film' : 'actor',
-      label: result.media_type === 'movie' ? result.title! : result.name!,
+      type: nodeType,
+      label: result.media_type === 'movie' ? result.title! : result.media_type === 'tv' ? result.name! : result.name!,
       tmdbId: result.id,
-      posterPath: result.media_type === 'movie' ? result.poster_path! : null,
+      posterPath: result.media_type === 'movie' || result.media_type === 'tv' ? result.poster_path! : null,
       profilePath: result.media_type === 'person' ? result.profile_path! : null,
     }
     if (nodes.some(n => n.tmdbId === candidate.tmdbId)) {
       resetStreak()
       return false
     }
-    const connectedTo = await validateGuess(candidate, filmNodes, actorNodes)
+    const connectedTo = await validateGuess(candidate, filmNodes, actorNodes, tvNodes)
     if (connectedTo.length === 0) {
       resetStreak()
       return false
@@ -150,7 +160,7 @@ export default function Game({ onEnd }: Props) {
         <GraphMap nodes={nodes} edges={edges} />
       </div>
       <div className="flex justify-center pb-6 pt-2">
-        <InputBar onGuess={handleGuess} />
+        <InputBar onGuess={handleGuess} includeMovies={includeMovies} includeTv={includeTv} />
       </div>
     </div>
   )
