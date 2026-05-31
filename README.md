@@ -11,11 +11,20 @@ Built with React 19, TypeScript, Vite, D3.js force graph, and Tailwind CSS v4.
 - If your guess shares a cast/credit connection with a node already on the graph, it gets added as a new node with an edge drawn between them
 - Keep going until time runs out — longer streaks earn multipliers
 
+https://github.com/user-attachments/assets/ad81af31-6499-477a-bf2b-1d792e0f3716
+
+https://github.com/user-attachments/assets/ef62de66-a617-4887-9af8-c5dcb4520690
+
+
 ## Modes
 
 - **Movies only** — starters and guesses are movies
 - **TV only** — starters and guesses are TV shows
 - **Both** — mix of movies and TV shows on the same graph
+
+
+https://github.com/user-attachments/assets/9d76337e-584f-4d32-af31-d86e4e6cd2a9
+
 
 ## Setup
 
