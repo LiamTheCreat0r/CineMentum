@@ -10,7 +10,7 @@ interface Props {
 export default function StartScreen({ settings, onSettingsChange, onStart }: Props) {
   return (
     <div className="flex flex-col items-center justify-center h-full text-white gap-6 bg-[radial-gradient(ellipse_at_center,_#1a0505_0%,_#0a0a0a_60%,_#000_100%)]">
-      <h1 className="text-5xl font-bold tracking-tight">CINE<span className="text-red-600 animate-glow">ATLAS</span></h1>
+      <h1 className="text-5xl font-bold tracking-tight">CINE<span className="text-red-600 animate-glow">MENTUM</span></h1>
       <div className="w-24 h-0.5 bg-red-600/60 rounded-full" />
       <p className="text-neutral-400 text-lg max-w-md text-center leading-relaxed">
         Build a film knowledge graph under time pressure.<br />
