@@ -1,73 +1,59 @@
-# React + TypeScript + Vite
+# CineMentum
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A film & TV knowledge graph game. Guess connections between actors, movies, and TV shows using the TMDB API.
 
-Currently, two official plugins are available:
+Built with React 19, TypeScript, Vite, D3.js force graph, and Tailwind CSS v4.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## How to play
 
-## React Compiler
+- A starter movie or TV show appears on the graph
+- Type any actor, movie, or TV show into the search bar
+- If your guess shares a cast/credit connection with a node already on the graph, it gets added as a new node with an edge drawn between them
+- Keep going until time runs out — longer streaks earn multipliers
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Modes
 
-## Expanding the ESLint configuration
+- **Movies only** — starters and guesses are movies
+- **TV only** — starters and guesses are TV shows
+- **Both** — mix of movies and TV shows on the same graph
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Setup
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Create a `.env` file with your TMDB API key:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+VITE_TMDB_API_KEY=your_key_here
+```
+
+Get a key at https://www.themoviedb.org/settings/api
+
+## Development
+
+```bash
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+npm run preview
+```
+
+## Tech stack
+
+- React 19 with hooks
+- TypeScript
+- Vite
+- D3.js force-directed graph (`d3-force`)
+- TMDB API v3
+- Tailwind CSS v4
+- localStorage-based caching with 1-hour TTL
+
+## Data source
+
+All data from [TMDB](https://www.themoviedb.org). TV show cast lookups use the `aggregate_credits` endpoint for complete cast across all seasons. Actor credit lookups use `combined_credits` for search precaching. Anime (genre 16 + Japanese language) is filtered from starters and search results. Anime is not the intended use for this project.
