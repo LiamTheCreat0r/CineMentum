@@ -1,4 +1,4 @@
-import { getMovieCredits, getPersonCredits, getTvCredits, getPersonTvCredits } from '../services/tmdbApi'
+import { getMovieCredits, getTvAggregateCredits, getPersonCombinedCredits } from '../services/tmdbApi'
 import { fetchOrWait, getCached, setCache } from '../hooks/useCache'
 import type { GraphNode, CreditPerson, CreditMovie, CreditTv, TMDBMultiResult } from '../types'
 
@@ -26,7 +26,7 @@ function precacheCreditSearchResults(
         }])
       }
     } else if (sourceType === 'actor') {
-      if ('title' in credit) {
+      if (credit.mediaType === 'movie') {
         const movie = credit as CreditMovie
         const key = `search:${movie.title.toLowerCase().trim()}`
         if (!getCached<TMDBMultiResult[]>(key)) {
@@ -66,26 +66,34 @@ export async function validateGuess(
   tvNodes: GraphNode[] = [],
 ): Promise<GraphNode[]> {
   if (candidate.type === 'actor') {
-    const cacheKey = `person:${candidate.tmdbId}:credits`
-    const credits = await fetchOrWait<CreditMovie[]>(cacheKey, async () => {
-      const raw = await getPersonCredits(candidate.tmdbId)
-      precacheCreditSearchResults(raw, 'actor')
-      return raw
-    })
-    const filmConnections = filmNodes.filter(n => new Set(credits.map(c => c.id)).has(n.tmdbId))
+    const connections: GraphNode[] = []
 
-    const tvCacheKey = `person:${candidate.tmdbId}:tv_credits`
-    const tvCredits = await fetchOrWait<CreditTv[]>(tvCacheKey, async () => {
-      const raw = await getPersonTvCredits(candidate.tmdbId)
-      precacheCreditSearchResults(raw, 'actor')
-      return raw
-    })
-    const tvConnections = tvNodes.filter(n => new Set(tvCredits.map(c => c.id)).has(n.tmdbId))
+    for (const tvNode of tvNodes) {
+      const credits = await fetchOrWait<CreditPerson[]>(`tv:${tvNode.tmdbId}:credits:v2`, async () => {
+        const raw = await getTvAggregateCredits(tvNode.tmdbId)
+        precacheCreditSearchResults(raw, 'tv')
+        return raw
+      })
+      if (credits.some(c => c.id === candidate.tmdbId)) {
+        connections.push(tvNode)
+      }
+    }
 
-    return [...filmConnections, ...tvConnections]
+    for (const filmNode of filmNodes) {
+      const credits = await fetchOrWait<CreditPerson[]>(`movie:${filmNode.tmdbId}:credits`, async () => {
+        const raw = await getMovieCredits(filmNode.tmdbId)
+        precacheCreditSearchResults(raw, 'film')
+        return raw
+      })
+      if (credits.some(c => c.id === candidate.tmdbId)) {
+        connections.push(filmNode)
+      }
+    }
+
+    return connections
   } else {
-    const creditFn = candidate.type === 'tv' ? getTvCredits : getMovieCredits
-    const cacheKey = candidate.type === 'tv' ? `tv:${candidate.tmdbId}:credits` : `movie:${candidate.tmdbId}:credits`
+    const creditFn = candidate.type === 'tv' ? getTvAggregateCredits : getMovieCredits
+    const cacheKey = candidate.type === 'tv' ? `tv:${candidate.tmdbId}:credits:v2` : `movie:${candidate.tmdbId}:credits`
     const credits = await fetchOrWait<CreditPerson[]>(cacheKey, async () => {
       const raw = await creditFn(candidate.tmdbId)
       precacheCreditSearchResults(raw, 'film')
@@ -105,24 +113,24 @@ export async function preloadNodeCredits(node: GraphNode): Promise<void> {
       return raw
     })
   } else if (node.type === 'tv') {
-    const cacheKey = `tv:${node.tmdbId}:credits`
+    const cacheKey = `tv:${node.tmdbId}:credits:v2`
     await fetchOrWait<CreditPerson[]>(cacheKey, async () => {
-      const raw = await getTvCredits(node.tmdbId)
+      const raw = await getTvAggregateCredits(node.tmdbId)
       precacheCreditSearchResults(raw, 'tv')
       return raw
     })
   } else {
-    const cacheKey = `person:${node.tmdbId}:credits`
-    await fetchOrWait<CreditMovie[]>(cacheKey, async () => {
-      const raw = await getPersonCredits(node.tmdbId)
-      precacheCreditSearchResults(raw, 'actor')
-      return raw
-    })
-    const tvCacheKey = `person:${node.tmdbId}:tv_credits`
-    await fetchOrWait<CreditTv[]>(tvCacheKey, async () => {
-      const raw = await getPersonTvCredits(node.tmdbId)
-      precacheCreditSearchResults(raw, 'actor')
-      return raw
+    const cacheKey = `person:${node.tmdbId}:combined_credits:v3`
+    await fetchOrWait<(CreditMovie | CreditTv)[]>(cacheKey, async () => {
+      const raw = await getPersonCombinedCredits(node.tmdbId)
+      const mapped = raw.map(c => {
+        if (c.media_type === 'movie') {
+          return { id: c.id, mediaType: 'movie' as const, title: c.title ?? '', poster_path: c.poster_path, popularity: c.popularity } as CreditMovie
+        }
+        return { id: c.id, mediaType: 'tv' as const, name: c.name ?? '', poster_path: c.poster_path, popularity: c.popularity } as CreditTv
+      })
+      precacheCreditSearchResults(mapped as CreditMovie[] | CreditTv[], 'actor')
+      return mapped
     })
   }
 }

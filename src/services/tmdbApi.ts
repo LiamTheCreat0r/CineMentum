@@ -32,12 +32,6 @@ export async function getMovieCredits(movieId: number) {
   return data.cast
 }
 
-export async function getPersonCredits(personId: number) {
-  const url = `${BASE}/person/${personId}/movie_credits?api_key=${apiKey()}&language=en-US`
-  const data = await fetchJSON<{ cast: { id: number; title: string; poster_path: string | null; popularity: number }[] }>(url)
-  return data.cast
-}
-
 export async function getPopularMovies(page = 1) {
   const url = `${BASE}/movie/popular?api_key=${apiKey()}&language=en-US&page=${page}`
   const data = await fetchJSON<{ results: { id: number; title: string; poster_path: string | null }[] }>(url)
@@ -46,24 +40,26 @@ export async function getPopularMovies(page = 1) {
 
 export async function getTopMovies(page = 1) {
   const url = `${BASE}/discover/movie?sort_by=vote_count.desc&api_key=${apiKey()}&language=en-US&page=${page}`
-  const data = await fetchJSON<{ results: { id: number; title: string; poster_path: string | null; genre_ids?: number[]; original_language?: string }[] }>(url)
+  const data = await fetchJSON<{ results: { id: number; title: string; poster_path: string | null; genre_ids?: number[]; original_language?: string; popularity: number }[] }>(url)
   return data.results.filter(r => !(r.genre_ids?.includes(16) && r.original_language === 'ja'))
 }
 
-export async function getTvCredits(tvId: number) {
-  const url = `${BASE}/tv/${tvId}/credits?api_key=${apiKey()}&language=en-US`
+export async function getTvAggregateCredits(tvId: number) {
+  const url = `${BASE}/tv/${tvId}/aggregate_credits?api_key=${apiKey()}&language=en-US`
   const data = await fetchJSON<{ cast: { id: number; name: string; profile_path: string | null; popularity: number }[] }>(url)
   return data.cast
 }
 
-export async function getPersonTvCredits(personId: number) {
-  const url = `${BASE}/person/${personId}/tv_credits?api_key=${apiKey()}&language=en-US`
-  const data = await fetchJSON<{ cast: { id: number; name: string; poster_path: string | null; popularity: number }[] }>(url)
+export async function getPersonCombinedCredits(personId: number) {
+  const url = `${BASE}/person/${personId}/combined_credits?api_key=${apiKey()}&language=en-US`
+  const data = await fetchJSON<{
+    cast: { id: number; media_type: 'movie' | 'tv'; title?: string; name?: string; poster_path: string | null; popularity: number }[]
+  }>(url)
   return data.cast
 }
 
 export async function getTopTv(page = 1) {
   const url = `${BASE}/discover/tv?sort_by=vote_count.desc&api_key=${apiKey()}&language=en-US&page=${page}`
-  const data = await fetchJSON<{ results: { id: number; name: string; poster_path: string | null; genre_ids?: number[]; original_language?: string }[] }>(url)
+  const data = await fetchJSON<{ results: { id: number; name: string; poster_path: string | null; genre_ids?: number[]; original_language?: string; popularity: number }[] }>(url)
   return data.results.filter(r => !(r.genre_ids?.includes(16) && r.original_language === 'ja'))
 }

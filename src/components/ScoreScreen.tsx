@@ -13,13 +13,11 @@ interface Props {
 
 export default function ScoreScreen({ nodes, edges, longestStreak, timeSurvived, score, onRestart }: Props) {
   return (
-    <div className="relative w-full h-full bg-neutral-950 flex flex-col">
-      <div className="flex-1 relative overflow-hidden">
-        <div className="w-full h-full animate-drift">
-          <GraphMap nodes={nodes} edges={edges} frozen />
-        </div>
+    <div className="relative w-full h-full bg-neutral-950">
+      <div className="absolute inset-0">
+        <GraphMap nodes={nodes} edges={edges} />
       </div>
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 pointer-events-none">
+      <div className="absolute top-0 left-0 right-0 flex flex-col items-center gap-4 pt-6 pointer-events-none z-10">
         <div className="pointer-events-auto">
           <ScoreCard
             nodes={nodes.length}

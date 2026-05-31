@@ -42,7 +42,16 @@ export interface TMDBMultiResult {
 
 export interface CreditTv {
   id: number
+  mediaType: 'tv'
   name: string
+  poster_path: string | null
+  popularity: number
+}
+
+export interface CreditMovie {
+  id: number
+  mediaType: 'movie'
+  title: string
   poster_path: string | null
   popularity: number
 }
@@ -54,20 +63,9 @@ export interface CreditPerson {
   popularity: number
 }
 
-export interface CreditMovie {
-  id: number
-  title: string
-  poster_path: string | null
-  popularity: number
-}
-
 export interface TMDBMovieCredit {
   id: number
   cast: CreditPerson[]
-}
-
-export interface TMDBPersonCredit {
-  cast: CreditMovie[]
 }
 
 export interface TMDBTvCredit {
@@ -75,6 +73,4 @@ export interface TMDBTvCredit {
   cast: CreditPerson[]
 }
 
-export interface TMDBPersonTvCredit {
-  cast: CreditTv[]
-}
+

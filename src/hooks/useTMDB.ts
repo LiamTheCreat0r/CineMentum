@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { searchMulti, getTopMovies, getTopTv } from '../services/tmdbApi'
 import { getCached, setCache } from './useCache'
+import type { ContentMode } from '../components/SettingsPanel'
 import type { TMDBMultiResult } from '../types'
 import { POPULAR_FETCH_COUNT } from '../constants'
 
@@ -52,14 +53,23 @@ export function useSearch(includeMovies = true, includeTv = false) {
   return { query, setQuery, results, loading }
 }
 
-async function fetchAllTopMovies(): Promise<{ id: number; title: string; poster_path: string | null }[]> {
+interface TopItem {
+  id: number
+  title: string
+  poster_path: string | null
+  popularity: number
+  mediaType: 'movie' | 'tv'
+}
+
+async function fetchAllTopMovies(): Promise<TopItem[]> {
   const pages = 5
-  const all: { id: number; title: string; poster_path: string | null }[] = []
+  const all: TopItem[] = []
   for (let p = 1; p <= pages; p++) {
     const cacheKey = `top:page${p}`
-    let page = getCached<{ id: number; title: string; poster_path: string | null }[]>(cacheKey)
+    let page = getCached<TopItem[]>(cacheKey)
     if (!page) {
-      page = await getTopMovies(p)
+      const raw = await getTopMovies(p)
+      page = raw.map(r => ({ id: r.id, title: r.title, poster_path: r.poster_path, popularity: r.popularity, mediaType: 'movie' as const }))
       setCache(cacheKey, page)
     }
     all.push(...page)
@@ -67,14 +77,15 @@ async function fetchAllTopMovies(): Promise<{ id: number; title: string; poster_
   return all
 }
 
-async function fetchAllTopTv(): Promise<{ id: number; name: string; poster_path: string | null }[]> {
+async function fetchAllTopTv(): Promise<TopItem[]> {
   const pages = 5
-  const all: { id: number; name: string; poster_path: string | null }[] = []
+  const all: TopItem[] = []
   for (let p = 1; p <= pages; p++) {
     const cacheKey = `tv:top:page${p}`
-    let page = getCached<{ id: number; name: string; poster_path: string | null }[]>(cacheKey)
+    let page = getCached<TopItem[]>(cacheKey)
     if (!page) {
-      page = await getTopTv(p)
+      const raw = await getTopTv(p)
+      page = raw.map(r => ({ id: r.id, title: r.name, poster_path: r.poster_path, popularity: r.popularity, mediaType: 'tv' as const }))
       setCache(cacheKey, page)
     }
     all.push(...page)
@@ -82,25 +93,36 @@ async function fetchAllTopTv(): Promise<{ id: number; name: string; poster_path:
   return all
 }
 
-export async function fetchRandomStarter(includeTv = false): Promise<{ id: number; title: string; poster_path: string | null }> {
-  if (includeTv) {
-    const tvCacheKey = 'tv:top:all'
-    let tvShows = getCached<{ id: number; name: string; poster_path: string | null }[]>(tvCacheKey)
-    if (!tvShows) {
-      tvShows = await fetchAllTopTv()
-      setCache(tvCacheKey, tvShows)
+async function fetchCombinedTop(): Promise<TopItem[]> {
+  const [movies, tvShows] = await Promise.all([fetchAllTopMovies(), fetchAllTopTv()])
+  const combined = [...movies, ...tvShows]
+  combined.sort((a, b) => b.popularity - a.popularity)
+  return combined.slice(0, POPULAR_FETCH_COUNT)
+}
+
+export async function fetchRandomStarter(mode: ContentMode): Promise<{ id: number; title: string; poster_path: string | null; mediaType: 'movie' | 'tv' }> {
+  let pool: TopItem[]
+
+  if (mode === 'both') {
+    pool = await fetchCombinedTop()
+  } else if (mode === 'tv') {
+    const cacheKey = 'tv:top:all'
+    let cached = getCached<TopItem[]>(cacheKey)
+    if (!cached) {
+      cached = await fetchAllTopTv()
+      setCache(cacheKey, cached)
     }
-    const pool = tvShows.slice(0, POPULAR_FETCH_COUNT)
-    const pick = pool[Math.floor(Math.random() * pool.length)]
-    return { id: pick.id, title: pick.name, poster_path: pick.poster_path }
+    pool = cached.slice(0, POPULAR_FETCH_COUNT)
+  } else {
+    const cacheKey = 'top:all'
+    let cached = getCached<TopItem[]>(cacheKey)
+    if (!cached) {
+      cached = await fetchAllTopMovies()
+      setCache(cacheKey, cached)
+    }
+    pool = cached.slice(0, POPULAR_FETCH_COUNT)
   }
 
-  const cacheKey = 'top:all'
-  let movies = getCached<{ id: number; title: string; poster_path: string | null }[]>(cacheKey)
-  if (!movies) {
-    movies = await fetchAllTopMovies()
-    setCache(cacheKey, movies)
-  }
-  const pool = movies.slice(0, POPULAR_FETCH_COUNT)
-  return pool[Math.floor(Math.random() * pool.length)]
+  const pick = pool[Math.floor(Math.random() * pool.length)]
+  return { id: pick.id, title: pick.title, poster_path: pick.poster_path, mediaType: pick.mediaType }
 }

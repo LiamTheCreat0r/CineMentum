@@ -35,9 +35,8 @@ export default function Game({ settings, onEnd }: Props) {
   const includeTv = settings.contentMode !== 'movies'
 
   useEffect(() => {
-    const pickTv = settings.contentMode === 'tv' || (settings.contentMode === 'both' && Math.random() > 0.5)
-    fetchRandomStarter(pickTv).then(item => {
-      const type = pickTv ? 'tv' : 'film'
+    fetchRandomStarter(settings.contentMode).then(item => {
+      const type = item.mediaType === 'tv' ? 'tv' : 'film'
       const starter: GraphNode = {
         id: `${type}-${item.id}`,
         type,
@@ -113,7 +112,14 @@ export default function Game({ settings, onEnd }: Props) {
       resetStreak()
       return false
     }
-    const connectedTo = await validateGuess(candidate, filmNodes, actorNodes, tvNodes)
+    let connectedTo: GraphNode[]
+    try {
+      connectedTo = await validateGuess(candidate, filmNodes, actorNodes, tvNodes)
+    } catch (err) {
+      console.error('[handleGuess] validateGuess threw:', err)
+      resetStreak()
+      return false
+    }
     if (connectedTo.length === 0) {
       resetStreak()
       return false
@@ -159,8 +165,16 @@ export default function Game({ settings, onEnd }: Props) {
       <div className="flex-1 relative">
         <GraphMap nodes={nodes} edges={edges} />
       </div>
-      <div className="flex justify-center pb-6 pt-2">
-        <InputBar onGuess={handleGuess} includeMovies={includeMovies} includeTv={includeTv} />
+      <div className="flex justify-center pb-6 pt-2 items-center gap-2">
+        <div className="flex-1 max-w-lg">
+          <InputBar onGuess={handleGuess} includeMovies={includeMovies} includeTv={includeTv} />
+        </div>
+        <button
+          onClick={() => onEnd(nodes, edges, longestStreak, Math.round((Date.now() - startTimeRef.current) / 1000), score)}
+          className="shrink-0 px-4 py-3 text-sm font-medium text-neutral-400 bg-neutral-800 border border-neutral-700 rounded-lg hover:text-red-400 hover:border-red-500/40 transition-colors"
+        >
+          Exit
+        </button>
       </div>
     </div>
   )
