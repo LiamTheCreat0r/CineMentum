@@ -67,15 +67,15 @@
 }
 
 @keyframes drift {
-  0% { transform: scale(1.05) translate(0, 0); }
-  25% { transform: scale(1.08) translate(2%, -1%); }
-  50% { transform: scale(1.05) translate(-1%, 1%); }
-  75% { transform: scale(1.1) translate(-2%, -2%); }
-  100% { transform: scale(1.05) translate(0, 0); }
+  0% { transform: scale(1.1) translate(0, 0); }
+  25% { transform: scale(1.2) translate(4%, -2%); }
+  50% { transform: scale(1.1) translate(-3%, 2%); }
+  75% { transform: scale(1.25) translate(-4%, -3%); }
+  100% { transform: scale(1.1) translate(0, 0); }
 }
 
 @utility animate-drift {
-  animation: drift 30s ease-in-out infinite;
+  animation: drift 15s ease-in-out infinite;
 }
 
 html, body, #root {

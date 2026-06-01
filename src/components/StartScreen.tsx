@@ -57,7 +57,7 @@ export default function StartScreen({ settings, onSettingsChange, onStart }: Pro
 
   return (
     <div className="relative flex flex-col items-center justify-center h-full text-white gap-6 bg-[radial-gradient(ellipse_at_center,_#1a0505_0%,_#0a0a0a_60%,_#000_100%)] overflow-hidden">
-      <div className="absolute inset-0 blur-md opacity-30 pointer-events-none origin-center scale-150">
+      <div className="absolute inset-0 blur-sm opacity-25 pointer-events-none scale-125 animate-drift">
         <GraphMap nodes={nodes} edges={edges} frozen />
       </div>
       <div className="relative z-10 flex flex-col items-center gap-6">

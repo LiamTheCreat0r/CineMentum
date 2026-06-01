@@ -131,7 +131,7 @@ export default function GraphMap({ nodes, edges, frozen }: Props) {
       nodeSel.selectAll<SVGRectElement, any>('rect.film-border')
         .data((d: any) => d.type === 'film' ? [d] : [])
         .join('rect')
-        .attr('class', 'film-border animate-glow-film')
+        .attr('class', `film-border${frozen ? '' : ' animate-glow-film'}`)
         .attr('x', -26)
         .attr('y', -38)
         .attr('width', 52)
@@ -144,7 +144,7 @@ export default function GraphMap({ nodes, edges, frozen }: Props) {
       nodeSel.selectAll<SVGRectElement, any>('rect.tv-border')
         .data((d: any) => d.type === 'tv' ? [d] : [])
         .join('rect')
-        .attr('class', 'tv-border animate-glow-tv')
+        .attr('class', `tv-border${frozen ? '' : ' animate-glow-tv'}`)
         .attr('x', -26)
         .attr('y', -38)
         .attr('width', 52)
@@ -157,7 +157,7 @@ export default function GraphMap({ nodes, edges, frozen }: Props) {
       nodeSel.selectAll<SVGCircleElement, any>('circle.actor-border')
         .data((d: any) => d.type === 'actor' ? [d] : [])
         .join('circle')
-        .attr('class', 'actor-border animate-glow-actor')
+        .attr('class', `actor-border${frozen ? '' : ' animate-glow-actor'}`)
         .attr('r', 21)
         .attr('fill', 'none')
         .attr('stroke', '#eab308')
@@ -200,16 +200,24 @@ export default function GraphMap({ nodes, edges, frozen }: Props) {
       }
     }
 
-    simulation.on('tick', tick)
+    if (frozen) {
+      for (let i = 0; i < 100; i++) simulation.tick()
+      tick()
+      simulation.stop()
+    } else {
+      simulation.on('tick', tick)
+    }
 
     return () => {
-      const pos = new Map<string, { x: number; y: number }>()
-      nodes.forEach(n => {
-        if (n.x != null && n.y != null) {
-          pos.set(n.id, { x: n.x, y: n.y })
-        }
-      })
-      savedPos.current = pos
+      if (!frozen) {
+        const pos = new Map<string, { x: number; y: number }>()
+        nodes.forEach(n => {
+          if (n.x != null && n.y != null) {
+            pos.set(n.id, { x: n.x, y: n.y })
+          }
+        })
+        savedPos.current = pos
+      }
       simulation.stop()
     }
   }, [nodes, edges, frozen])
