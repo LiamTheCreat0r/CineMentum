@@ -5,6 +5,7 @@ import GraphMap from './GraphMap'
 import InputBar from './InputBar'
 import { useTimer } from '../hooks/useTimer'
 import { fetchRandomStarter } from '../hooks/useTMDB'
+import { getMovieCredits, getTvAggregateCredits } from '../services/tmdbApi'
 import { validateGuess, preloadNodeCredits } from '../utils/validation'
 import type { Settings } from './SettingsPanel'
 import type { GraphNode, GraphEdge, TMDBMultiResult, NodeType } from '../types'
@@ -35,7 +36,12 @@ export default function Game({ settings, onEnd }: Props) {
   const includeTv = settings.contentMode !== 'movies'
 
   useEffect(() => {
-    fetchRandomStarter(settings.contentMode).then(item => {
+    let cancelled = false
+
+    async function init() {
+      const item = await fetchRandomStarter(settings.contentMode)
+      if (cancelled) return
+
       const type = item.mediaType === 'tv' ? 'tv' : 'film'
       const starter: GraphNode = {
         id: `${type}-${item.id}`,
@@ -45,11 +51,37 @@ export default function Game({ settings, onEnd }: Props) {
         posterPath: item.poster_path,
         profilePath: null,
       }
-      setNodes([starter])
+
+      const creditFn = type === 'tv' ? getTvAggregateCredits : getMovieCredits
+      const cast = await creditFn(item.id)
+      const topCast = cast
+        .sort((a, b) => b.popularity - a.popularity)
+        .slice(0, 3)
+
+      const actorNodes: GraphNode[] = topCast.map(c => ({
+        id: `person-${c.id}`,
+        type: 'actor' as const,
+        label: c.name,
+        tmdbId: c.id,
+        posterPath: null,
+        profilePath: c.profile_path,
+      }))
+
+      const edges: GraphEdge[] = actorNodes.map(a => ({
+        source: starter.id,
+        target: a.id,
+      }))
+
+      setNodes([starter, ...actorNodes])
+      setEdges(edges)
       preloadNodeCredits(starter)
+      actorNodes.forEach(n => preloadNodeCredits(n))
       startTimeRef.current = Date.now()
       setReady(true)
-    })
+    }
+
+    init()
+    return () => { cancelled = true }
   }, [settings.contentMode])
 
   useEffect(() => {
