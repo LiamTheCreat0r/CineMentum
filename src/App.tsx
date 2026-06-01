@@ -48,6 +48,11 @@ export default function App() {
         setPhase("playing");
     }
 
+    function handleMainMenu() {
+        setResult(null);
+        setPhase("start");
+    }
+
     if (phase === "start") return <div className="animate-fade-in w-full h-full"><StartScreen settings={settings} onSettingsChange={setSettings} onStart={handleStart} /></div>;
 
     if (phase === "playing") return <div className="animate-fade-in w-full h-full"><Game key={gameKey} settings={settings} onEnd={handleEnd} /></div>;
@@ -63,6 +68,7 @@ export default function App() {
                 timeSurvived={result.timeSurvived}
                 score={result.score}
                 onRestart={handleRestart}
+                onMainMenu={handleMainMenu}
             />
         </div>
     );

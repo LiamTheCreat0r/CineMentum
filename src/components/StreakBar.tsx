@@ -7,21 +7,21 @@ interface Props {
 const TOTAL = 10
 
 const colors = [
-  'bg-orange-300',
-  'bg-orange-400',
-  'bg-orange-500',
-  'bg-orange-600',
-  'bg-orange-700',
-  'bg-orange-800',
+  'bg-red-300',
+  'bg-red-400',
+  'bg-red-500',
+  'bg-red-600',
+  'bg-red-700',
+  'bg-red-800',
 ]
 
 const textColors = [
-  'text-orange-300',
-  'text-orange-400',
-  'text-orange-500',
-  'text-orange-600',
-  'text-orange-700',
-  'text-orange-800',
+  'text-red-300',
+  'text-red-400',
+  'text-red-500',
+  'text-red-600',
+  'text-red-700',
+  'text-red-800',
 ]
 
 export default function StreakBar({ streakTimeLeft, multiplier, streak }: Props) {

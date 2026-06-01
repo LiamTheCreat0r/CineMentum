@@ -143,21 +143,21 @@ export default function Game({ settings, onEnd }: Props) {
 
   if (!ready) {
     return (
-      <div className="flex items-center justify-center h-full bg-neutral-950 text-white">
+      <div className="flex items-center justify-center h-full bg-[radial-gradient(ellipse_at_center,_#1a0505_0%,_#0a0a0a_60%,_#000_100%)] text-white">
         Loading…
       </div>
     )
   }
 
   return (
-    <div className="relative w-full h-full bg-neutral-950 flex flex-col">
+    <div className="relative w-full h-full bg-[radial-gradient(ellipse_at_center,_#1a0505_0%,_#0a0a0a_60%,_#000_100%)] flex flex-col">
       <TimerBar timeLeft={timeLeft} />
       <StreakBar streakTimeLeft={streakTimeLeft} multiplier={multiplier} streak={streakRef.current} />
       <div className="absolute top-3 right-4 z-50">
         <span className="text-white font-bold text-lg">
           {score}
-          {streakTimeLeft > 0 && (
-            <span className="text-cyan-400 text-sm ml-1">
+            {streakTimeLeft > 0 && (
+            <span className="text-red-400 text-sm ml-1">
               ({multiplier.toFixed(2)}x)
             </span>
           )}
@@ -172,7 +172,7 @@ export default function Game({ settings, onEnd }: Props) {
         </div>
         <button
           onClick={() => onEnd(nodes, edges, longestStreak, Math.round((Date.now() - startTimeRef.current) / 1000), score)}
-          className="shrink-0 px-4 py-3 text-sm font-medium text-neutral-400 bg-neutral-800 border border-neutral-700 rounded-lg hover:text-red-400 hover:border-red-500/40 transition-colors"
+          className="shrink-0 px-4 py-3 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20"
         >
           Exit
         </button>
