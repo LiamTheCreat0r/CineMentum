@@ -54,9 +54,7 @@ export default function Game({ settings, onEnd }: Props) {
 
       const creditFn = type === 'tv' ? getTvAggregateCredits : getMovieCredits
       const cast = await creditFn(item.id)
-      const topCast = cast
-        .sort((a, b) => b.popularity - a.popularity)
-        .slice(0, 3)
+      const topCast = cast.slice(0, 3)
 
       const actorNodes: GraphNode[] = topCast.map(c => ({
         id: `person-${c.id}`,
