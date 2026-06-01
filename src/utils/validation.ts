@@ -26,32 +26,31 @@ function precacheCreditSearchResults(
         }])
       }
     } else if (sourceType === 'actor') {
-      if (credit.mediaType === 'movie') {
-        const movie = credit as CreditMovie
-        const key = `search:${movie.title.toLowerCase().trim()}`
+      const mediaCredit = credit as CreditMovie | CreditTv
+      if (mediaCredit.mediaType === 'movie') {
+        const key = `search:${mediaCredit.title.toLowerCase().trim()}`
         if (!getCached<TMDBMultiResult[]>(key)) {
           setCache(key, [{
-            id: movie.id,
+            id: mediaCredit.id,
             media_type: 'movie',
-            title: movie.title,
+            title: mediaCredit.title,
             name: undefined,
-            poster_path: movie.poster_path,
+            poster_path: mediaCredit.poster_path,
             profile_path: null,
-            popularity: movie.popularity,
+            popularity: mediaCredit.popularity,
           }])
         }
       } else {
-        const tv = credit as CreditTv
-        const key = `search:${tv.name.toLowerCase().trim()}`
+        const key = `search:${mediaCredit.name.toLowerCase().trim()}`
         if (!getCached<TMDBMultiResult[]>(key)) {
           setCache(key, [{
-            id: tv.id,
+            id: mediaCredit.id,
             media_type: 'tv',
             title: undefined,
-            name: tv.name,
-            poster_path: tv.poster_path,
+            name: mediaCredit.name,
+            poster_path: mediaCredit.poster_path,
             profile_path: null,
-            popularity: tv.popularity,
+            popularity: mediaCredit.popularity,
           }])
         }
       }
